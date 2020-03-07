@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="com.docsascodeasdocs.markdown.dacad-npm"
+         default="dita2dacad-npm"
+         xmlns:dita="http://dita-ot.sourceforge.net">
+
+    <property name="transtype"
+              value="dacad-npm"/>
+
+    <!-- USER-PROVIDED ARGS: FOR BEST RESULTS, PASS VALS FOR THESE ARGS IN YOUR BUILD SCRIPT -->
+    <property name="default.language" value="${default.language}"/>
+    <property name="output.dir" value="${output.dir}"/>
+    <property name="dita.temp.dir" value="${dita.temp.dir}"/>
+    <property name="args.input" value="${args.input}"/>
+    
+    <!-- LOCAL ARGS -->
+    <property name="home.dir" value="${output.dir}${file.separator}..${file.separator}"/>
+    <property name="pub.lang" value="${default.language}"/>
+    <property name="md.ext" value=".md"/>
+    <property name="yml.ext" value=".yml"/>
+    
+    <!-- COMMON DITA ARGS -->
+    <property name="args.debug" value="yes"/>
+    <property name="clean.temp" value="no"/>
+
+    <property name="dacad.npm.package.dir" 
+              value="${home.dir}${file.separator}docs-source"/>
+    <property name="dacad.npm.package.content.dir"
+              value="${dacad.npm.package.dir}${file.separator}content${file.separator}${pub.lang}"/>
+    <property name="dacad.npm.package.assets.dir"
+              value="${dacad.npm.package.dir}${file.separator}assets${file.separator}doc-assets${file.separator}${pub.lang}${file.separator}images"/>
+    <property name="dacad.npm.package.docs.dir"
+              value="${dacad.npm.package.content.dir}${file.separator}docs"/>
+
+    <target name="create.dacad.npm.package">
+        <copy todir="${dacad.npm.package.docs.dir}"
+              flatten="true">
+            <fileset dir="${output.dir}">
+                <include name="**/*.md"/>
+            </fileset>
+        </copy>
+        <copy todir="${dacad.npm.package.content.dir}"
+              file="${output.dir}${file.separator}pages.yml"/>
+        <copy todir="${dacad.npm.package.assets.dir}"
+              flatten="true">
+            <fileset dir="${output.dir}${file.separator}assets">
+                <include name="**"/>
+            </fileset>
+        </copy>
+    </target>
+    
+    <target name="dacad-npm.init">
+        <condition property="args.xsl" value="${dita.plugin.com.docsascodeasdocs.markdown.dacad-npm.dir}/xsl/dita2dacad-npm_template.xsl">
+            <not><isset property="args.xsl" /></not>
+        </condition>
+        <makeurl file="${dita.input.valfile}" property="dita.input.valfile.url" validate="no"/>
+        <condition property="dita.dacad-npm.reloadstylesheet" value="false">
+            <not><isset property="dita.dacad-npm.reloadstylesheet"/></not>
+        </condition>
+    </target>
+
+    <target name="dita.inner.topics.dacad-npm.common" unless="noTopic" if="inner.transform">
+        <xslt basedir="${dita.temp.dir}"
+              destdir="${output.dir}"
+              includesfile="${dita.temp.dir}${file.separator}${fullditatopicfile}"
+              reloadstylesheet="${dita.dacad-npm.reloadstylesheet}"
+              classpathref="dost.class.path"
+              extension="${md.ext}"
+              style="${args.xsl}"
+              filenameparameter="FILENAME"
+              filedirparameter="FILEDIR">
+            <excludesfile name="${dita.temp.dir}${file.separator}${resourceonlyfile}" if="resourceonlyfile"/>
+            <param name="TRANSTYPE" expression="${transtype}"/>
+            <param name="FILTERFILE" expression="${dita.input.valfile}" if="dita.input.valfile"/>
+            <param name="DRAFT" expression="${args.draft}" if="args.draft"/>
+            <param name="ARTLBL" expression="${args.arglbl}" if="args.artlbl"/>
+            <param name="GENERATE-TASK-LABELS" expression="${args.gen.task.lbl}" if="args.gen.task.lbl"/>
+            <param name="PRESERVE-DITA-CLASS" expression="${args.dacad-npm.classattr}" if="args.dacad-npm.classattr"/>
+            <param name="NOPARENTLINK" expression="${args.hide.parent.link}" if="args.hide.parent.link"/>
+            <param name="include.rellinks" expression="${include.rellinks}"/>
+            <param name="BREADCRUMBS" expression="${args.breadcrumbs}" if="args.breadcrumbs"/>
+            <param name="INDEXSHOW" expression="${args.indexshow}" if="args.indexshow"/>
+            <param name="genDefMeta" expression="${args.gen.default.meta}" if="args.gen.default.meta"/>
+            <param name="OUTEXT" expression="${md.ext}" if="md.ext"/>
+            <param name="BASEDIR" expression="${basedir}"/>
+            <param name="OUTPUTDIR" expression="${output.dir}"/>
+            <param name="DBG" expression="${args.debug}" if="args.debug"/>
+            <mapper type="regexp" from="^(${tempdirToinputmapdir.relative.value})(.*?)(\.(\w+))$$" to="\2${md.ext}"/>
+            <xmlcatalog refid="dita.catalog"/>
+        </xslt>
+    </target>
+    
+    <target name="dita.map.dacad-npm" 
+            depends="dita.map.dacad-npm.init, dita.map.dacad-npm.toc"/>
+    
+    <target name="dita.map.dacad-npm.init" 
+            unless="noMap">
+        <condition property="args.dacad-npm.toc.xsl" 
+                   value="${dita.plugin.com.docsascodeasdocs.markdown.dacad-npm.dir}/xsl/map.xsl">
+            <not><isset property="args.dacad-npm.toc.xsl"/></not>
+        </condition>
+        <condition property="args.dacad-npm.toc" 
+                   value="pages">
+            <not><isset property="args.dacad-npm.toc"/></not>
+        </condition>
+    </target>
+    
+    <target name="dita.map.dacad-npm.toc" 
+            unless="noMap" 
+            description="Build YAML TOC file">
+        <local name="dacad-npm.toc.output.dir"/>
+        <condition property="dacad-npm.toc.output.dir" 
+                   value="${output.dir}" 
+                   else="${_dita.map.output.dir}">
+            <isset property="inner.transform"/>
+        </condition>
+        <xslt basedir="${dita.temp.dir}"
+              destdir="${dacad-npm.toc.output.dir}"
+              includesfile="${dita.temp.dir}${file.separator}${user.input.file.listfile}"
+              classpathref="dost.class.path"
+              style="${args.dacad-npm.toc.xsl}">
+            <excludesfile name="${dita.temp.dir}${file.separator}${resourceonlyfile}" 
+                          if="resourceonlyfile"/>
+            <param name="OUTEXT" 
+                   expression="${yml.ext}" 
+                   if="yml.ext"/>
+            <param name="contenttarget" 
+                   expression="${args.dacad-npm.contenttarget}" 
+                   if="args.xhtml.contenttarget"/>
+            <mergemapper to="${args.dacad-npm.toc}${yml.ext}"/>
+            <xmlcatalog refid="dita.catalog"/>
+        </xslt>
+    </target>
+    
+
+    <target name="dita2dacad-npm"
+            description="Custom 'GitHub-flavored markdown as NPM package' transform for DaCaD"
+            depends="build-init,
+                     preprocess,
+                     dacad-npm.init,
+                     dita.inner.topics.dacad-npm.common,
+                     dita.map.dacad-npm,
+                     create.dacad.npm.package"/>
+    
+</project>

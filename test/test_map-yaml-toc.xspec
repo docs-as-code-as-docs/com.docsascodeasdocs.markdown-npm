@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<x:description xmlns:x="http://www.jenitennison.com/xslt/xspec" stylesheet="../xsl/map.xsl">
+    
+    <x:scenario label="When processing the top-level title of a map in 'yaml-toc' mode">
+        <x:context mode="yaml-toc">
+            <map class="- map/map ">
+                <title class="- topic/title ">Don't show this title!</title>
+            </map>
+        </x:context>
+        <x:expect label="do nothing." xml:space="preserve"></x:expect>
+    </x:scenario>
+    
+    <x:scenario label="When processing the top-level title of a map in general">
+        <x:context>
+            <map class="- map/map ">
+                <title class="- topic/title ">Don't show this title!</title>
+            </map>
+        </x:context>
+        <x:expect label="do nothing." xml:space="preserve"></x:expect>
+    </x:scenario>
+    
+    <x:scenario label="When processing a 'topichead' elem set in 'yaml-toc' mode">
+        <x:context mode="yaml-toc">
+            <map class="- map/map ">
+                <title class="- topic/title ">Don't show this title!</title>
+                <topichead class="+ map/topicref mapgroup-d/topichead ">
+                    <topicmeta class="- map/topicmeta ">
+                        <navtitle class="- topic/navtitle ">Section title</navtitle>
+                    </topicmeta>
+                </topichead>
+            </map>
+        </x:context>
+        <x:expect label="render title, url, and links fields" xml:space="preserve">&#xA;- title: "Section title"&#xA;  url: ""&#xA;  links:&#xA;</x:expect>
+    </x:scenario>
+    
+    <x:scenario label="When processing a topicref set in 'yaml-toc' mode">
+        <x:context mode="yaml-toc">
+            <map class="- map/map ">
+                <title class="- topic/title ">Don't show this title!</title>
+                <topichead class="+ map/topicref mapgroup-d/topichead ">
+                    <topicmeta class="- map/topicmeta ">
+                        <navtitle class="- topic/navtitle ">Overview</navtitle>
+                    </topicmeta>
+                    <topicref class="- map/topicref " href="taskbook/task_preface.dita">
+                        <topicmeta class="- map/topicmeta ">
+                            <navtitle class="- topic/navtitle ">Sample Preface</navtitle>
+                            <linktext class="- map/linktext ">Sample Preface</linktext>
+                            <shortdesc class="- map/shortdesc ">This book explains each task separately. You can jump in anywhere, get the information you need, and     complete your work. </shortdesc>
+                        </topicmeta>
+                    </topicref>
+                </topichead>
+            </map>
+        </x:context>
+        <x:expect label="" xml:space="preserve">&#xA;- title: "Overview"&#xA;  url: ""&#xA;  links:&#xA;    - url: "task_preface"&#xA;      title: "Sample Preface"&#xA;      description: "This book explains each task separately. You can jump in anywhere, get the information you need, and complete your work."&#xA;</x:expect>
+    </x:scenario>
+    
+    <x:scenario label="When processing two sibling topicref sets in 'yaml-toc' mode">
+        <x:context mode="yaml-toc">
+            <map class="- map/map ">
+                <title class="- topic/title ">Don't show this title!</title>
+                <topichead class="+ map/topicref mapgroup-d/topichead ">
+                    <topicmeta class="- map/topicmeta ">
+                        <navtitle class="- topic/navtitle ">Installation</navtitle>
+                    </topicmeta>
+                    <topicref class="- map/topicref " href="taskbook/installing.dita" type="topic">
+                        <topicmeta class="- map/topicmeta ">
+                            <navtitle class="- topic/navtitle ">Installing</navtitle>
+                            <linktext class="- map/linktext ">Installing</linktext>
+                            <shortdesc class="- map/shortdesc ">You install components to make them available for your solution.</shortdesc>
+                        </topicmeta>
+                    </topicref>
+                    <topicref class="- map/topicref " href="taskbook/installstorage.dita" type="task">
+                        <topicmeta class="- map/topicmeta ">
+                            <navtitle class="- topic/navtitle ">Installing hard drives or other storage</navtitle>
+                            <linktext class="- map/linktext ">Installing hard drives or other storage</linktext>
+                            <shortdesc class="- map/shortdesc ">A simple guide to installing hard drives.</shortdesc>
+                        </topicmeta>
+                    </topicref>
+                </topichead>
+            </map>
+        </x:context>
+        <x:expect label="render the relevant fields" xml:space="preserve">&#xA;- title: "Installation"&#xA;  url: ""&#xA;  links:&#xA;    - url: "installing"&#xA;      title: "Installing"&#xA;      description: "You install components to make them available for your solution."&#xA;    - url: "installstorage"&#xA;      title: "Installing hard drives or other storage"&#xA;      description: "A simple guide to installing hard drives."&#xA;</x:expect>
+    </x:scenario>
+    
+    <x:scenario label="When processing a map without a mode setting">
+        <x:context>
+            <map class="- map/map ">
+                <title class="- topic/title ">Don't show this title!</title>
+                <topichead class="+ map/topicref mapgroup-d/topichead ">
+                    <topicmeta class="- map/topicmeta ">
+                        <navtitle class="- topic/navtitle ">Overview</navtitle>
+                    </topicmeta>
+                    <topicref class="- map/topicref " href="taskbook/task_preface.dita">
+                        <topicmeta class="- map/topicmeta ">
+                            <navtitle class="- topic/navtitle ">Sample Preface</navtitle>
+                            <linktext class="- map/linktext ">Sample Preface</linktext>
+                            <shortdesc class="- map/shortdesc ">This book explains each task separately. You can jump in anywhere, get the information you need, and     complete your work. </shortdesc>
+                        </topicmeta>
+                    </topicref>
+                </topichead>
+            </map>
+        </x:context>
+        <x:expect label="do nothing" xml:space="preserve"></x:expect>
+    </x:scenario>
+
+    <!-- THIS SHOULD BE A PASSING TEST; XSPEC HAS A BUG IN RENDERING WHITESPACE IN TEXT MODE -->
+    <x:scenario label="When processing nested topicref sets in 'yaml-toc' mode">
+        <x:context mode="yaml-toc">
+            <map class="- map/map ">
+                <title class="- topic/title ">Don't show this title!</title>
+                <topichead class="+ map/topicref mapgroup-d/topichead ">
+                    <topicmeta class="- map/topicmeta ">
+                        <navtitle class="- topic/navtitle ">Installation</navtitle>
+                    </topicmeta>
+                    <topicref class="- map/topicref " href="taskbook/installing.dita" type="topic">
+                        <topicmeta class="- map/topicmeta ">
+                            <navtitle class="- topic/navtitle ">Installing</navtitle>
+                            <linktext class="- map/linktext ">Installing</linktext>
+                            <shortdesc class="- map/shortdesc ">You install components to make them available for your solution.</shortdesc>
+                        </topicmeta>
+                        <topicref class="- map/topicref " href="taskbook/installstorage.dita" type="task">
+                            <topicmeta class="- map/topicmeta ">
+                                <navtitle class="- topic/navtitle ">Installing hard drives or other storage</navtitle>
+                                <linktext class="- map/linktext ">Installing hard drives or other storage</linktext>
+                                <shortdesc class="- map/shortdesc ">A simple guide to installing hard drives.</shortdesc>
+                            </topicmeta>
+                            <topicref class="- map/topicref " href="taskbook/unscrewcover.dita" type="task">
+                                <topicmeta class="- map/topicmeta ">
+                                    <navtitle class="- topic/navtitle ">Remove the cover of your system</navtitle>
+                                    <linktext class="- map/linktext ">Remove the cover of your system</linktext>
+                                    <shortdesc class="- map/shortdesc ">This is a simple task requiring a screwdriver.</shortdesc>
+                                </topicmeta>
+                            </topicref>
+                        </topicref>
+                    </topicref>
+                </topichead>
+            </map>
+        </x:context>
+        <x:expect label="indent the child sets accordingly" xml:space="preserve">&#xA;- title: "Installation"&#xA;  url: ""&#xA;  links:&#xA;    - url: "installing"&#xA;      title: "Installing"&#xA;      description: "You install components to make them available for your solution."&#xA;        - url: "installing"&#xA;          title: "Installing"&#xA;          description: "A simple guide to installing hard drives."&#xA;            - url: "installing"&#xA;              title: "Installing"&#xA;              description: "This is a simple task requiring a screwdriver."&#xA;</x:expect>
+    </x:scenario>
+    
+    
+    
+    
+    
+   <!-- <x:scenario label="">
+        <x:context mode="yaml-toc">
+            
+        </x:context>
+        <x:expect label="" xml:space="preserve"></x:expect>
+    </x:scenario> -->
+    
+</x:description>
